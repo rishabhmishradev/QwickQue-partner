@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import api from '../services/api'
 import { useAuth } from '../services/AuthContext'
 
-function BookingsPage() {
+function BookingsPage({ showToast }) {
   const { user } = useAuth();
   const [salon, setSalon] = useState(null)
   const [bookings, setBookings] = useState([])
@@ -16,7 +16,6 @@ function BookingsPage() {
         const mySalon = salonsRes.data.data[0];
         setSalon(mySalon);
 
-        // Check if profile is complete AND hasn't been shown in this session
         const hasSeenPopup = sessionStorage.getItem('profile_popup_shown');
         const isIncomplete = !mySalon.address || mySalon.address === 'To be updated' || !mySalon.description;
 
@@ -44,12 +43,11 @@ function BookingsPage() {
   const handleAction = async (id, action) => {
     try {
       await api.post(`/bookings/${id}/${action === 'confirmed' ? 'accept' : action}`)
-      // Refresh bookings
       const bookingsRes = await api.get(`/salons/${salon.id}/bookings`);
       setBookings(bookingsRes.data.data);
-      alert(`BOOKING_${action.toUpperCase()}_SUCCESS`);
+      showToast(`Booking ${action} successfully!`);
     } catch (e) {
-      alert('ACTION_FAILED: ' + (e.response?.data?.error || e.message));
+      showToast('Action failed: ' + (e.response?.data?.error || e.message), 'error');
     }
   }
 
@@ -59,84 +57,122 @@ function BookingsPage() {
   const pastBookings = bookings.filter(b => ['COMPLETED', 'CANCELLED', 'REJECTED'].includes(b.status));
 
   return (
-    <div style={{ maxWidth: '1000px', position: 'relative' }}>
+    <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
       {showProfilePopup && (
         <div style={styles.overlay}>
-          <div className="ticket-stub" style={styles.popup}>
-            <h2>Complete Your Profile</h2>
-            <p>Please update your company details to start accepting bookings.</p>
-            <button onClick={() => window.location.href='/my-company'} style={styles.popupButton}>UPDATE NOW</button>
+          <div className="card" style={styles.popup}>
+            <div className="card-body">
+              <h2 style={{ marginBottom: '16px' }}>Complete Your Profile</h2>
+              <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>Please update your company details to start accepting bookings and appear in searches.</p>
+              <button onClick={() => window.location.href='/my-company'} className="btn btn-primary" style={{ width: '100%' }}>UPDATE NOW</button>
+            </div>
           </div>
         </div>
       )}
 
-      <h1 style={{ fontSize: '2.5rem' }}>{salon?.name?.toUpperCase() || 'MY'} Ledger</h1>
-      <p style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--brass)', marginBottom: '40px' }}>
-        LOCATION_ID: SALON_{salon?.id?.toString().padStart(3, '0') || '000'} // STATUS: {salon?.status || 'UNKNOWN'}
-      </p>
-
-      <h3 style={{ color: 'var(--rouge)', borderBottom: '1px solid var(--rouge)', paddingBottom: '8px', marginBottom: '24px' }}>CURRENT REQUESTS</h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        {currentBookings.map(b => (
-          <BookingTicket key={b.id} booking={b} actions={
-            b.status === 'PENDING_CONFIRMATION' ? (
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <button onClick={() => handleAction(b.id, 'confirmed')} className="btn-primary" style={{ backgroundColor: 'var(--sage)', padding: '8px 16px' }}>ACCEPT</button>
-                <button onClick={() => handleAction(b.id, 'rejected')} className="btn-primary" style={{ backgroundColor: 'var(--rust)', padding: '8px 16px' }}>REJECT</button>
-              </div>
-            ) : (
-              <button onClick={() => handleAction(b.id, 'completed')} className="btn-primary" style={{ padding: '8px 16px' }}>MARK COMPLETED</button>
-            )
-          } />
-        ))}
-        {currentBookings.length === 0 && (
-          <div style={{ padding: '24px', border: '1px dashed #ddd', textAlign: 'center', color: '#999' }}>NO_ACTIVE_BOOKINGS</div>
-        )}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px' }}>
+        <div>
+          <h1 style={{ fontSize: '32px', marginBottom: '8px' }}>Appointments Ledger</h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
+            Viewing all requests for <span style={{ color: 'var(--ink)', fontWeight: '600' }}>{salon?.name || 'My Salon'}</span>
+          </p>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+           <span className="badge" style={{ background: 'var(--ink)', color: 'white', padding: '6px 12px' }}>
+             SALON_ID: {salon?.id?.toString().padStart(3, '0') || '---'}
+           </span>
+        </div>
       </div>
 
-      <h3 style={{ marginTop: '60px', borderBottom: '1px solid var(--ink)', paddingBottom: '8px', marginBottom: '24px' }}>PAST BOOKINGS</h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', opacity: 0.7 }}>
-        {pastBookings.map(b => (
-          <BookingTicket key={b.id} booking={b} actions={
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: b.status === 'COMPLETED' ? 'var(--sage)' : 'var(--rouge)' }}>{b.status}</span>
-          } />
-        ))}
-        {pastBookings.length === 0 && (
-           <div style={{ padding: '24px', border: '1px dashed #ddd', textAlign: 'center', color: '#999' }}>NO_PAST_ACTIVITY</div>
-        )}
-      </div>
+      <section style={{ marginBottom: '48px' }}>
+        <h3 style={{ fontSize: '18px', color: 'var(--rouge)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'currentColor' }}></div>
+          ACTIVE REQUESTS
+        </h3>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
+          {currentBookings.map(b => (
+            <BookingCard key={b.id} booking={b} handleAction={handleAction} />
+          ))}
+          {currentBookings.length === 0 && (
+            <div style={{ padding: '48px', background: 'white', borderRadius: '12px', textAlign: 'center', color: '#999', border: '1px dashed #ddd' }}>
+              NO_ACTIVE_BOOKINGS_AT_THE_MOMENT
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section>
+        <h3 style={{ fontSize: '18px', color: 'var(--ink)', marginBottom: '24px', opacity: 0.6 }}>PAST ACTIVITY</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px', opacity: 0.8 }}>
+          {pastBookings.map(b => (
+            <BookingCard key={b.id} booking={b} isPast />
+          ))}
+          {pastBookings.length === 0 && (
+             <div style={{ padding: '24px', textAlign: 'center', color: '#999' }}>NO_PAST_HISTORY</div>
+          )}
+        </div>
+      </section>
     </div>
   )
 }
 
-const styles = {
-  overlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 },
-  popup: { background: 'white', padding: '40px', borderRadius: '8px', textAlign: 'center', maxWidth: '400px' },
-  popupButton: { marginTop: '20px', padding: '12px 24px', backgroundColor: 'var(--ink)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }
+const BookingCard = ({ booking, handleAction, isPast }) => {
+  const statusColors = {
+    'PENDING_CONFIRMATION': 'badge-pending',
+    'CONFIRMED': 'badge-confirmed',
+    'COMPLETED': 'badge-completed',
+    'CANCELLED': 'badge-cancelled',
+    'REJECTED': 'badge-cancelled'
+  };
+
+  return (
+    <div className="card" style={{ display: 'flex', border: 'none' }}>
+      <div style={{
+        width: '120px', background: isPast ? '#F3F4F6' : 'var(--ink)', color: isPast ? 'var(--ink)' : 'white',
+        display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
+        padding: '20px'
+      }}>
+        <div style={{ fontSize: '12px', opacity: 0.8, marginBottom: '4px' }}>{new Date(booking.booking_date).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}</div>
+        <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{new Date(booking.booking_date).getDate()}</div>
+        <div style={{ fontSize: '14px', marginTop: '8px', fontWeight: '600' }}>{booking.start_time.substring(0, 5)}</div>
+      </div>
+
+      <div style={{ flex: 1, padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+             <span className={`badge ${statusColors[booking.status]}`}>{booking.status.replace('_', ' ')}</span>
+             <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>REF: #{booking.id}</span>
+          </div>
+          <h4 style={{ fontSize: '20px', marginBottom: '12px' }}>{booking.service_name}</h4>
+
+          <div style={{ display: 'flex', gap: '24px' }}>
+             <div>
+               <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 'bold' }}>CUSTOMER</div>
+               <div style={{ fontSize: '14px', fontWeight: '500' }}>{booking.user_name}</div>
+             </div>
+             <div>
+               <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 'bold' }}>ARTISAN</div>
+               <div style={{ fontSize: '14px', fontWeight: '500' }}>{booking.staff_name || 'Unassigned'}</div>
+             </div>
+          </div>
+        </div>
+
+        {!isPast && (
+          <div style={{ display: 'flex', gap: '12px' }}>
+            {booking.status === 'PENDING_CONFIRMATION' ? (
+              <>
+                <button onClick={() => handleAction(b.id, 'confirmed')} className="btn" style={{ background: 'var(--sage)', color: 'white' }}>ACCEPT</button>
+                <button onClick={() => handleAction(b.id, 'rejected')} className="btn" style={{ background: 'var(--rust)', color: 'white' }}>REJECT</button>
+              </>
+            ) : (
+              <button onClick={() => handleAction(booking.id, 'completed')} className="btn btn-primary">MARK DONE</button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
-
-const BookingTicket = ({ booking, actions }) => (
-  <div className="ticket-stub" style={{ display: 'flex', overflow: 'hidden' }}>
-    <div style={{ flex: 1, padding: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--brass)' }}>APPT_REF: #{booking.id}</span>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px' }}>{new Date(booking.booking_date).toLocaleDateString().toUpperCase()}</span>
-      </div>
-      <div style={{ fontSize: '20px', fontWeight: '700', fontFamily: 'var(--font-display)' }}>{booking.service_name.toUpperCase()}</div>
-
-      <div style={{ marginTop: '8px', fontSize: '10px', color: 'var(--brass)', fontFamily: 'var(--font-mono)', borderTop: '1px solid #eee', paddingTop: '8px' }}>
-        ASSIGNED_ARTISAN: {booking.staff_name?.toUpperCase() || 'ANY_AVAILABLE'}
-      </div>
-
-      <div style={{ marginTop: '12px', fontSize: '12px' }}>
-        <span style={{ fontWeight: 'bold' }}>CUSTOMER:</span> {booking.user_name} ({booking.user_phone})
-      </div>
-    </div>
-    <div style={{ width: '200px', backgroundColor: '#fafafa', borderLeft: '1px dashed #DED9D1', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-       <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 'bold', fontSize: '18px', marginBottom: '12px' }}>{booking.start_time.substring(0, 5)}</div>
-       {actions}
-    </div>
-  </div>
-)
 
 export default BookingsPage

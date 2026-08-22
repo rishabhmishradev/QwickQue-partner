@@ -1,13 +1,23 @@
 :root {
-  --ink: #251F1C;
-  --chalk: #F1EDE6;
-  --rouge: #A6334A;
-  --brass: #B8935A;
-  --sage: #6E7B62;
-  --rust: #B4462F;
+  /* Colors */
+  --ink: #1A1A1A;
+  --chalk: #F8F9FA;
+  --white: #FFFFFF;
+  --rouge: #E63946;
+  --brass: #B08968;
+  --sage: #52B788;
+  --rust: #BC4749;
+  --primary: #2D6A4F;
+  --secondary: #40916C;
+  --accent: #B08968;
+  --border: #E9ECEF;
+  --text-muted: #6C757D;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 
+  /* Fonts */
   --font-display: 'Fraunces', serif;
-  --font-body: 'Inter', sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
 }
 
@@ -15,40 +25,96 @@ body {
   background-color: var(--chalk);
   color: var(--ink);
   font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, h4 {
   font-family: var(--font-display);
-  font-variant-ligatures: common-ligatures;
+  font-weight: 700;
+  margin: 0;
 }
 
-.ticket-stub {
-  border: 1px solid rgba(37, 31, 28, 0.1);
-  border-radius: 4px;
-  background: white;
-  position: relative;
+/* Modern Card Style */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.ticket-stub::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 40px;
-  border-bottom: 1px dashed #DED9D1;
+.card:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.card-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-body {
+  padding: 24px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  font-size: 14px;
+  gap: 8px;
 }
 
 .btn-primary {
-  background-color: var(--rouge);
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 4px;
-  font-family: var(--font-body);
-  font-weight: 600;
-  cursor: pointer;
+  background-color: var(--ink);
+  color: var(--white);
 }
 
-.mono-data {
-  font-family: var(--font-mono);
+.btn-primary:hover {
+  background-color: #333;
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid var(--border);
+  color: var(--ink);
+}
+
+.btn-outline:hover {
+  background-color: var(--chalk);
+}
+
+/* Status Badges */
+.badge {
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-pending { background: #FEF3C7; color: #92400E; }
+.badge-confirmed { background: #D1FAE5; color: #065F46; }
+.badge-completed { background: #DBEAFE; color: #1E40AF; }
+.badge-cancelled { background: #FEE2E2; color: #991B1B; }
+
+/* Utility */
+.ticket-stub {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: white;
+  position: relative;
+  box-shadow: var(--shadow);
 }

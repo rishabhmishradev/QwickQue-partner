@@ -25,81 +25,87 @@ function LoginPage() {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#F1EDE6' }}>
-      <div style={{ width: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <div style={{
+      display: 'flex', minHeight: '100vh',
+      backgroundColor: 'var(--chalk)',
+      backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(0,0,0,0.05) 1px, transparent 0)',
+      backgroundSize: '32px 32px'
+    }}>
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '40px' }}>
+        <div className="card" style={{ width: '100%', maxWidth: '440px', padding: '48px', boxShadow: 'var(--shadow-lg)' }}>
+          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+            <h1 style={{ fontSize: '32px', color: 'var(--ink)', marginBottom: '8px' }}>QUICKQUE</h1>
+            <p style={{ color: 'var(--text-muted)', fontSize: '14px', fontWeight: '500' }}>Partner access terminal</p>
+          </div>
 
-        <div style={{ marginBottom: '60px', textAlign: 'center' }}>
-          <img src="/logo.png" alt="Logo" style={{ height: '150px', objectFit: 'contain' }} />
+          <form onSubmit={handleSubmit}>
+            <div style={{ marginBottom: '24px' }}>
+              <label style={styles.label}>EMAIL ADDRESS</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@company.com"
+                style={styles.input}
+                required
+              />
+            </div>
+
+            <div style={{ marginBottom: '32px' }}>
+              <label style={styles.label}>PASSWORD</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                style={styles.input}
+                required
+              />
+            </div>
+
+            {error && (
+              <div style={{
+                background: '#FEE2E2', color: 'var(--rouge)', padding: '12px',
+                borderRadius: '8px', fontSize: '13px', marginBottom: '24px',
+                textAlign: 'center', fontWeight: '600', border: '1px solid #FECACA'
+              }}>
+                {error.toUpperCase()}
+              </div>
+            )}
+
+            <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%', padding: '16px', fontSize: '16px' }}>
+              {loading ? 'AUTHENTICATING...' : 'SECURE LOG IN'}
+            </button>
+          </form>
+
+          <div style={{ marginTop: '32px', textAlign: 'center', fontSize: '14px', color: 'var(--text-muted)' }}>
+            New to the platform? <Link to="/register" style={{ color: 'var(--ink)', fontWeight: '700', textDecoration: 'none' }}>Create Partner Account</Link>
+          </div>
         </div>
-
-        <form onSubmit={handleSubmit} style={{ width: '100%' }}>
-          <div style={{ marginBottom: '24px' }}>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="ENTER YOUR EMAIL"
-              style={styles.input}
-              required
-            />
-            <label style={styles.label}>ENTER YOUR EMAIL</label>
-          </div>
-
-          <div style={{ marginBottom: '40px' }}>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="PASSWORD"
-              style={styles.input}
-              required
-            />
-            <label style={styles.label}>PASSWORD</label>
-          </div>
-
-          {error && <div style={{ color: '#B4462F', fontSize: '12px', marginBottom: '20px', textAlign: 'center' }}>{error.toUpperCase()}</div>}
-
-          <button type="submit" disabled={loading} style={styles.button}>
-            {loading ? 'LOADING...' : 'LOG IN'}
-          </button>
-        </form>
-
-        <Link to="/register" style={{ marginTop: '32px', fontSize: '11px', color: 'black', textDecoration: 'underline', fontWeight: 'bold' }}>
-          NEW TO QWICKQUE? CREATE AN ACCOUNT
-        </Link>
       </div>
     </div>
   );
 }
 
 const styles = {
-  input: {
-    width: '100%',
-    padding: '16px',
-    border: 'none',
-    backgroundColor: 'white',
-    fontSize: '12px',
-    boxSizing: 'border-box',
-    outline: 'none'
-  },
   label: {
     display: 'block',
-    fontSize: '10px',
-    fontWeight: 'bold',
-    marginTop: '8px',
-    textAlign: 'left',
-    color: '#251F1C'
+    fontSize: '11px',
+    fontWeight: '700',
+    marginBottom: '8px',
+    color: 'var(--text-muted)',
+    letterSpacing: '0.5px'
   },
-  button: {
+  input: {
     width: '100%',
-    padding: '16px',
-    background: '#7A0000',
-    color: 'black',
-    border: 'none',
-    fontSize: '24px',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-    letterSpacing: '1px'
+    padding: '14px 16px',
+    borderRadius: '8px',
+    border: '1px solid var(--border)',
+    backgroundColor: 'var(--chalk)',
+    fontSize: '14px',
+    boxSizing: 'border-box',
+    outline: 'none',
+    transition: 'all 0.2s'
   }
 };
 
