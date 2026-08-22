@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../services/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
@@ -68,6 +68,10 @@ function LoginPage() {
             {loading ? 'AUTHENTICATING...' : 'ACCESS DASHBOARD'}
           </button>
         </form>
+
+        <div style={{ marginTop: '20px', fontSize: '12px' }}>
+          DON'T HAVE AN ACCOUNT? <Link to="/register" style={{ color: '#A6334A', fontWeight: 'bold', textDecoration: 'none' }}>REGISTER COMPANY</Link>
+        </div>
       </div>
     </div>
   );
