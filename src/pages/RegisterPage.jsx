@@ -60,6 +60,7 @@ function RegisterPage() {
             phone: formData.phone,
             address: 'To be updated',
             city: 'DELHI',
+            state: 'DELHI',
             latitude: 28.6139,
             longitude: 77.2090,
             gender_target: formData.genderTarget,
