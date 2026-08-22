@@ -1,9 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import locationData from '../assets/india_states_cities.json';
 
 function RegisterSalonPage() {
-  const [form, setForm] = useState({ name: '', description: '', phone: '', address: '', city: 'DELHI', latitude: 28.6139, longitude: 77.2090, gender_target: 'UNISEX', categories: [] });
+  const [form, setForm] = useState({
+    name: '',
+    description: '',
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    latitude: 28.6139,
+    longitude: 77.2090,
+    gender_target: 'UNISEX',
+    categories: []
+  });
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -73,6 +85,7 @@ function RegisterSalonPage() {
         phone: form.phone,
         address: form.address,
         city: form.city,
+        state: form.state,
         latitude: parseFloat(form.latitude),
         longitude: parseFloat(form.longitude),
         gender_target: form.gender_target,
@@ -98,6 +111,9 @@ function RegisterSalonPage() {
 
   if (fetching) return <div>FETCHING_COMPANY_DATA...</div>
 
+  const selectedStateData = locationData.states.find(s => s.name === form.state);
+  const cities = selectedStateData ? selectedStateData.cities : [];
+
   return (
     <div style={{ maxWidth: '700px', margin: '0 auto', padding: '40px' }}>
       <h1 style={{ fontFamily: 'Fraunces, serif' }}>{isEditing ? 'Manage Your Company' : 'Register Your Salon'}</h1>
@@ -121,20 +137,29 @@ function RegisterSalonPage() {
           <label style={styles.label}>DESCRIPTION</label>
           <textarea style={styles.input} rows="3" value={form.description} onChange={e => setForm({...form, description: e.target.value})} required />
 
+          <label style={styles.label}>STREET_ADDRESS (DISPLAYED TO CUSTOMERS)</label>
+          <input style={styles.input} value={form.address} onChange={e => setForm({...form, address: e.target.value})} required placeholder="e.g., Shop 4, MG Road, Ranchi" />
+
           <div style={styles.grid}>
             <div>
-              <label style={styles.label}>STREET_ADDRESS</label>
-              <input style={styles.input} value={form.address} onChange={e => setForm({...form, address: e.target.value})} required />
+              <label style={styles.label}>STATE</label>
+              <select style={styles.input} value={form.state} onChange={e => setForm({...form, state: e.target.value, city: ''})} required>
+                <option value="">SELECT STATE</option>
+                {locationData.states.map(s => <option key={s.name} value={s.name}>{s.name.toUpperCase()}</option>)}
+              </select>
             </div>
             <div>
               <label style={styles.label}>CITY</label>
-              <input style={styles.input} value={form.city} onChange={e => setForm({...form, city: e.target.value})} required />
+              <select style={styles.input} value={form.city} onChange={e => setForm({...form, city: e.target.value})} required disabled={!form.state}>
+                <option value="">SELECT CITY</option>
+                {cities.map(c => <option key={c} value={c}>{c.toUpperCase()}</option>)}
+              </select>
             </div>
           </div>
 
           <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#f9f9f9', borderRadius: '4px', border: '1px dashed #ccc' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-              <span style={{ fontSize: '10px', fontWeight: 'bold', color: 'var(--brass)' }}>GEOGRAPHIC_COORDINATES</span>
+              <span style={{ fontSize: '10px', fontWeight: 'bold', color: 'var(--brass)' }}>GEOGRAPHIC_COORDINATES (FOR SEARCH)</span>
               <button type="button" onClick={detectLocation} style={styles.detectBtn}>DETECT MY LOCATION</button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>

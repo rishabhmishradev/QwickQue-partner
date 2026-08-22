@@ -123,7 +123,12 @@ const BookingTicket = ({ booking, actions }) => (
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px' }}>{new Date(booking.booking_date).toLocaleDateString().toUpperCase()}</span>
       </div>
       <div style={{ fontSize: '20px', fontWeight: '700', fontFamily: 'var(--font-display)' }}>{booking.service_name.toUpperCase()}</div>
-      <div style={{ marginTop: '8px', fontSize: '12px' }}>
+
+      <div style={{ marginTop: '8px', fontSize: '10px', color: 'var(--brass)', fontFamily: 'var(--font-mono)', borderTop: '1px solid #eee', paddingTop: '8px' }}>
+        ASSIGNED_ARTISAN: {booking.staff_name?.toUpperCase() || 'ANY_AVAILABLE'}
+      </div>
+
+      <div style={{ marginTop: '12px', fontSize: '12px' }}>
         <span style={{ fontWeight: 'bold' }}>CUSTOMER:</span> {booking.user_name} ({booking.user_phone})
       </div>
     </div>

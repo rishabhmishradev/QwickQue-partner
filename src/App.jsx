@@ -6,6 +6,7 @@ import BookingsPage from './pages/BookingsPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import RegisterSalonPage from './pages/RegisterSalonPage'
+import SlotsPage from './pages/SlotsPage'
 
 function AppContent() {
   const { user, logout } = useAuth();
@@ -26,6 +27,7 @@ function AppContent() {
         <h2 style={{ letterSpacing: '2px', marginBottom: '40px' }}>QUICKQUE</h2>
         <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <li><SidebarLink to="/bookings" label="LEDGER" /></li>
+          <li><SidebarLink to="/slots" label="TIME SLOTS" /></li>
           <li><SidebarLink to="/services" label="SERVICES" /></li>
           <li><SidebarLink to="/staff" label="ARTISANS (EMPLOYEES)" /></li>
           <li><SidebarLink to="/my-company" label="MY COMPANY" /></li>
@@ -37,6 +39,7 @@ function AppContent() {
       <main style={{ flex: 1, padding: '60px', backgroundColor: 'var(--chalk)' }}>
         <Routes>
           <Route path="/bookings" element={<BookingsPage />} />
+          <Route path="/slots" element={<SlotsPage />} />
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/staff" element={<StaffPage />} />
           <Route path="/my-company" element={<RegisterSalonPage />} />
