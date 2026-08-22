@@ -19,6 +19,7 @@ function RegisterSalonPage() {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const navigate = useNavigate();
 
   const availableCategories = ['Haircut', 'Spa', 'Facial', 'Makeup', 'Massage', 'Manicure', 'Pedicure'];
@@ -43,6 +44,37 @@ function RegisterSalonPage() {
     };
     fetchSalon();
   }, []);
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !form.id) {
+      alert('Please save company details first before uploading images.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    setUploading(true);
+    try {
+      const res = await api.post(`/uploads/salon-image/${form.id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      if (res.data.success) {
+        alert('IMAGE_UPLOADED_SUCCESSFULLY');
+        // Refresh the form to show the new image if needed,
+        // or just let the main_image select query handle it on next load.
+        setForm(prev => ({
+          ...prev,
+          images: [...(prev.images || []), res.data.url]
+        }));
+      }
+    } catch (err) {
+      alert('UPLOAD_FAILED: ' + (err.response?.data?.error || err.message));
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleCategoryToggle = (cat) => {
     setForm(prev => ({
@@ -199,6 +231,25 @@ function RegisterSalonPage() {
               ))}
             </div>
           </div>
+
+          {isEditing && (
+            <div style={{ marginBottom: '30px', padding: '20px', border: '1px solid #ddd', borderRadius: '4px' }}>
+              <label style={styles.label}>COMPANY_IMAGES (S3_GALLERY)</label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '15px' }}>
+                {form.images && form.images.map((img, i) => (
+                  <img key={i} src={img} alt="Salon" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '4px' }} />
+                ))}
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                disabled={uploading}
+                style={{ fontSize: '12px' }}
+              />
+              {uploading && <span style={{ fontSize: '10px', marginLeft: '10px', color: 'var(--brass)' }}>UPLOADING_TO_CLOUD...</span>}
+            </div>
+          )}
 
           <button type="submit" disabled={loading} style={styles.button}>
             {loading ? 'PROCESSING...' : (isEditing ? 'UPDATE PROFILE' : 'REGISTER SALON')}

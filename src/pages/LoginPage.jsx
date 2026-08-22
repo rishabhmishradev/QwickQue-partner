@@ -25,56 +25,82 @@ function LoginPage() {
   };
 
   return (
-    <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f0f2f5' }}>
-      <div style={{ background: 'white', padding: '40px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', width: '350px', textAlign: 'center' }}>
-        <h1 style={{ fontFamily: 'Fraunces, serif' }}>QuickQue Partner</h1>
-        <p>Salon Management Ledger</p>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#F1EDE6' }}>
+      <div style={{ width: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
-        <form onSubmit={handleSubmit} style={{ marginTop: '30px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <input
-            type="email"
-            placeholder="EMAIL ADDRESS"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={{ padding: '12px', borderRadius: '4px', border: '1px solid #ddd' }}
-          />
-          <input
-            type="password"
-            placeholder="PASSWORD"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={{ padding: '12px', borderRadius: '4px', border: '1px solid #ddd' }}
-          />
+        <div style={{ marginBottom: '60px', textAlign: 'center' }}>
+          <img src="/logo.png" alt="Logo" style={{ height: '150px', objectFit: 'contain' }} />
+        </div>
 
-          {error && <div style={{ color: 'red', fontSize: '12px' }}>{error.toUpperCase()}</div>}
+        <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+          <div style={{ marginBottom: '24px' }}>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="ENTER YOUR EMAIL"
+              style={styles.input}
+              required
+            />
+            <label style={styles.label}>ENTER YOUR EMAIL</label>
+          </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: '100%',
-              padding: '12px',
-              backgroundColor: '#A6334A',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              opacity: loading ? 0.7 : 1
-            }}
-          >
-            {loading ? 'AUTHENTICATING...' : 'ACCESS DASHBOARD'}
+          <div style={{ marginBottom: '40px' }}>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="PASSWORD"
+              style={styles.input}
+              required
+            />
+            <label style={styles.label}>PASSWORD</label>
+          </div>
+
+          {error && <div style={{ color: '#B4462F', fontSize: '12px', marginBottom: '20px', textAlign: 'center' }}>{error.toUpperCase()}</div>}
+
+          <button type="submit" disabled={loading} style={styles.button}>
+            {loading ? 'LOADING...' : 'LOG IN'}
           </button>
         </form>
 
-        <div style={{ marginTop: '20px', fontSize: '12px' }}>
-          DON'T HAVE AN ACCOUNT? <Link to="/register" style={{ color: '#A6334A', fontWeight: 'bold', textDecoration: 'none' }}>REGISTER COMPANY</Link>
-        </div>
+        <Link to="/register" style={{ marginTop: '32px', fontSize: '11px', color: 'black', textDecoration: 'underline', fontWeight: 'bold' }}>
+          NEW TO QWICKQUE? CREATE AN ACCOUNT
+        </Link>
       </div>
     </div>
   );
 }
+
+const styles = {
+  input: {
+    width: '100%',
+    padding: '16px',
+    border: 'none',
+    backgroundColor: 'white',
+    fontSize: '12px',
+    boxSizing: 'border-box',
+    outline: 'none'
+  },
+  label: {
+    display: 'block',
+    fontSize: '10px',
+    fontWeight: 'bold',
+    marginTop: '8px',
+    textAlign: 'left',
+    color: '#251F1C'
+  },
+  button: {
+    width: '100%',
+    padding: '16px',
+    background: '#7A0000',
+    color: 'black',
+    border: 'none',
+    fontSize: '24px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    letterSpacing: '1px'
+  }
+};
 
 export default LoginPage;
