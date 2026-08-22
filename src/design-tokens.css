@@ -1,0 +1,54 @@
+:root {
+  --ink: #251F1C;
+  --chalk: #F1EDE6;
+  --rouge: #A6334A;
+  --brass: #B8935A;
+  --sage: #6E7B62;
+  --rust: #B4462F;
+
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+
+body {
+  background-color: var(--chalk);
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-variant-ligatures: common-ligatures;
+}
+
+.ticket-stub {
+  border: 1px solid rgba(37, 31, 28, 0.1);
+  border-radius: 4px;
+  background: white;
+  position: relative;
+}
+
+.ticket-stub::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 40px;
+  border-bottom: 1px dashed #DED9D1;
+}
+
+.btn-primary {
+  background-color: var(--rouge);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mono-data {
+  font-family: var(--font-mono);
+}
