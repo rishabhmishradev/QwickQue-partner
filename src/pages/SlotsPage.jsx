@@ -41,18 +41,24 @@ function SlotsPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.post(`/salons/${salon.id}/slots`, {
-        staff_id: form.staff_id || null,
-        service_id: form.service_id || null,
+      const payload = {
+        staff_id: form.staff_id ? parseInt(form.staff_id) : null,
+        service_id: form.service_id ? parseInt(form.service_id) : null,
         slot_date: date,
         start_time: form.start_time + ':00',
         end_time: form.end_time + ':00'
-      });
-      alert('SLOT_OPENED_SUCCESSFULLY');
-      setForm({ ...form, staff_id: '', service_id: '' });
-      fetchData();
+      };
+
+      const res = await api.post(`/salons/${salon.id}/slots`, payload);
+
+      if (res.data.success) {
+        alert('SLOT_OPENED_SUCCESSFULLY');
+        setForm({ ...form, staff_id: '', service_id: '' });
+        fetchData();
+      }
     } catch (err) {
-      alert('FAILED_TO_CREATE_SLOT');
+      const errorMsg = err.response?.data?.error || err.message || 'FAILED_TO_CREATE_SLOT';
+      alert('ERROR: ' + errorMsg);
     }
   };
 
