@@ -4,10 +4,11 @@ import api from '../services/api';
 function SlotsPage() {
   const [salon, setSalon] = useState(null);
   const [staff, setStaff] = useState([]);
+  const [services, setServices] = useState([]);
   const [slots, setSlots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [form, setForm] = useState({ staff_id: '', start_time: '10:00', end_time: '11:00' });
+  const [form, setForm] = useState({ staff_id: '', service_id: '', start_time: '10:00', end_time: '11:00' });
 
   const fetchData = async () => {
     try {
@@ -16,13 +17,15 @@ function SlotsPage() {
         const mySalon = salonsRes.data.data[0];
         setSalon(mySalon);
 
-        const [staffRes, slotsRes] = await Promise.all([
+        const [staffRes, servicesRes, slotsRes] = await Promise.all([
           api.get(`/salons/${mySalon.id}/staff`),
+          api.get(`/salons/${mySalon.id}/services`),
           api.get(`/salons/${mySalon.id}/slots?date=${date}`)
         ]);
 
-        setStaff(staffRes.data.data);
-        setSlots(slotsRes.data.data);
+        setStaff(staffRes.data.data || []);
+        setServices(servicesRes.data.data || []);
+        setSlots(slotsRes.data.data || []);
       }
     } catch (err) {
       console.error('Fetch error:', err);
@@ -39,12 +42,14 @@ function SlotsPage() {
     e.preventDefault();
     try {
       await api.post(`/salons/${salon.id}/slots`, {
-        ...form,
+        staff_id: form.staff_id || null,
+        service_id: form.service_id || null,
         slot_date: date,
         start_time: form.start_time + ':00',
         end_time: form.end_time + ':00'
       });
       alert('SLOT_OPENED_SUCCESSFULLY');
+      setForm({ ...form, staff_id: '', service_id: '' });
       fetchData();
     } catch (err) {
       alert('FAILED_TO_CREATE_SLOT');
@@ -82,9 +87,13 @@ function SlotsPage() {
           <input type="date" value={date} onChange={e => setDate(e.target.value)} style={styles.input} />
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '15px' }}>
-          <select value={form.staff_id} onChange={e => setForm({...form, staff_id: e.target.value})} required style={styles.input}>
-            <option value="">SELECT ARTISAN</option>
+        <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: '15px' }}>
+          <select value={form.service_id} onChange={e => setForm({...form, service_id: e.target.value})} style={styles.input}>
+            <option value="">SELECT SERVICE (OPTIONAL)</option>
+            {services.map(s => <option key={s.id} value={s.id}>{s.name.toUpperCase()}</option>)}
+          </select>
+          <select value={form.staff_id} onChange={e => setForm({...form, staff_id: e.target.value})} style={styles.input}>
+            <option value="">SELECT ARTISAN (OPTIONAL)</option>
             {staff.map(s => <option key={s.id} value={s.id}>{s.name.toUpperCase()}</option>)}
           </select>
           <input type="time" value={form.start_time} onChange={e => setForm({...form, start_time: e.target.value})} required style={styles.input} />
@@ -98,7 +107,9 @@ function SlotsPage() {
           <div key={s.id} className="ticket-stub" style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: s.is_occupied ? 0.6 : 1 }}>
             <div>
               <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{s.start_time.substring(0, 5)} - {s.end_time.substring(0, 5)}</div>
-              <div style={{ fontSize: '10px', color: 'var(--brass)', fontFamily: 'var(--font-mono)' }}>{s.staff_name.toUpperCase()}</div>
+              <div style={{ fontSize: '10px', color: 'var(--brass)', fontFamily: 'var(--font-mono)' }}>
+                {s.service_name?.toUpperCase() || 'GENERAL'} // {s.staff_name?.toUpperCase() || 'ANY ARTISAN'}
+              </div>
             </div>
             <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
               <div style={{ textAlign: 'right' }}>
